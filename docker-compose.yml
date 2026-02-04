@@ -1,0 +1,22 @@
+services:
+  reverse-proxy:
+    image: nginx:1.26-alpine
+    container_name: mi_reverse_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"   # Puerto estándar para HTTP
+      - "443:443" # Puerto estándar para HTTPS
+    volumes:
+      # Monta la configuración de Nginx
+      - ./nginx_config:/etc/nginx/conf.d:ro
+      # Monta los certificados SSL
+      - ${CERTS_DIR}:/etc/nginx/certs:ro
+    # 'host.docker.internal' requiere esta configuración para ser accesible
+    # desde el contenedor de Nginx. 'host-gateway' es la IP del host.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy_net
+networks:
+  proxy_net:
+    external: true
